@@ -104,7 +104,6 @@ def display_palette(palette):
 
     plt.show()
 # Llamar a la función con la paleta obtenida por KMeans
-palette = display_palette(palette)
 
 
 # ### Reconstrucción de la imagen con Kmeans
