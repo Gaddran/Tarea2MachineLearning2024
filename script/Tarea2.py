@@ -1,6 +1,20 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# <div>
+# <img src="https://i.ibb.co/v3CvVz9/udd-short.png" width="150"/>
+#     <br>
+#     <strong>Universidad del Desarrollo</strong><br>
+#     <em>Magíster en Data Science</em><br>
+#     <em>Profesor: Tomás Fontecilla </em><br>
+# 
+# </div>
+# 
+# # Machine Learning
+# *28 de Septiembre de 2024*
+# 
+# **Nombre Estudiante(s)**: ` Nicolas Gonzalez - Giuseppe Lavarello - Camilo Rivera`  
+
 # ## Introducción
 # En esta tarea, el objetivo principal es aplicar y comparar diferentes algoritmos de clustering a una imagen, ajustando KMeans, Clustering Jerárquico y Gaussian Mixtures utilizando la biblioteca scikit-learn. Estos métodos permiten segmentar una imagen en grupos de colores homogéneos, reduciendo su complejidad visual y preservando las características esenciales de la misma.
 # 
@@ -16,8 +30,9 @@ from sklearn.mixture import GaussianMixture
 from sklearn.cluster import AgglomerativeClustering
 from PIL import Image
 
+
 # Cargar imagen
-image_path = ciudad.png.jpg"
+image_path = './data/ciudad.jpeg'
 image = Image.open(image_path)
 image = image.convert('RGB')  # Asegurar que la imagen está en formato RGB
 image_array = np.array(image)
@@ -97,7 +112,6 @@ def display_palette(palette):
         ax[i].axis('off')  # Quitar ejes para que solo se vean los colores
 
     plt.show()
-
 # Llamar a la función con la paleta obtenida por KMeans
 display_palette(palette)
 
@@ -118,7 +132,7 @@ plt.show()
 # #### Aplicación Clustering Jerárquico
 
 # Reducir el tamaño de la imagen
-small_image = image.resize((int(image.width / 4), int(image.height / 4)))  # Cambiar el factor según sea necesario. con 2 no me corre
+small_image = image.resize((int(image.width / 2), int(image.height / 2)))  # Cambiar el factor según sea necesario. con 2 no me corre
 small_image_array = np.array(small_image)
 
 # Aplanar la imagen reducida
@@ -128,8 +142,19 @@ small_pixels = small_image_array.reshape(-1, 3)
 hierarchical = AgglomerativeClustering(n_clusters=n_clusters)
 hierarchical_labels = hierarchical.fit_predict(small_pixels)
 
+
+
+
+# Crear la nueva paleta de colores
+paleta_cluster = np.vstack([small_pixels[hierarchical_labels == label][0] for label in np.unique(hierarchical_labels)])
+
+# Mostrar la paleta de colores encontrada
+print("Paleta de colores obtenida:", paleta_cluster)
+display_palette(paleta_cluster)
+
+
 # Restaurar la imagen pequeña con clustering jerárquico
-hierarchical_image_small = palette[hierarchical_labels].reshape(small_image_array.shape)
+hierarchical_image_small = paleta_cluster[hierarchical_labels].reshape(small_image_array.shape)
 
 # Mostrar la imagen restaurada
 plt.imshow(hierarchical_image_small)
@@ -138,14 +163,27 @@ plt.title("Imagen restaurada (versión reducida) con Clustering Jerárquico")
 plt.show()
 
 
+# #### Aplicación Gaussian Mixture
+
 # Ajustar el modelo Gaussian Mixture con el número óptimo de clusters
 gmm = GaussianMixture(n_components=n_clusters, random_state=42).fit(pixels)
 
 # Obtener las etiquetas
 gmm_labels = gmm.predict(pixels)
 
+
+
+
+# Crear la nueva paleta de colores
+palette_means = np.array(gmm.means_.astype(int))
+
+# Mostrar la paleta de colores encontrada
+print("Paleta de colores obtenida:", palette_means)
+display_palette(palette_means)
+
+
 # Restaurar la imagen con Gaussian Mixtures
-gmm_image = palette[gmm_labels].reshape(image_array.shape)
+gmm_image = palette_means[gmm_labels].reshape(image_array.shape)
 
 # Mostrar la imagen restaurada
 plt.imshow(gmm_image)
@@ -154,8 +192,8 @@ plt.title("Imagen restaurada con Gaussian Mixtures")
 plt.show()
 
 
-# ## Conclusiones
-
+# ## Conclusiones  
+# 
 # ### Algoritmo Kmeans
 # Al aplicar el algoritmo KMeans para la reconstrucción de la imagen, se ha dirigido una reducción estratégica a solo 7 clusters de colores. Este proceso no solo simplifica la paleta de colores, sino que también mantiene intactas las características visuales fundamentales, asegurando que los elementos principales de la imagen sigan siendo claros y reconocibles. Esta reducción selectiva ha permitido destacar formas y contornos sin perder la esencia de la imagen original. Además, la segmentación en colores homogéneos facilita considerablemente la identificación y diferenciación de los distintos elementos visuales dentro de la imagen.
 # 
@@ -167,5 +205,3 @@ plt.show()
 # 
 # ### Conclusión General
 # Podemos concluir que el modelo Gaussian Mixtures es el que mejor se adapta a la representación de la imagen, ya que logra transiciones de color mucho más suaves, lo que permite preservar los detalles complejos de un entorno urbano, como los carteles luminosos y los reflejos. Esta suavidad en la segmentación aporta un mayor realismo en comparación con los modelos KMeans y Clustering Jerárquico, que aunque efectivos en su propia manera, tienden a simplificar o perder ciertos detalles finos. Gaussian Mixtures, por lo tanto, ofrece una visualización más fluida y precisa, lo que lo convierte en la opción óptima para imágenes que requieren una representación detallada y realista.
-
-# 
