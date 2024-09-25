@@ -16,10 +16,8 @@
 # **Nombre Estudiante(s)**: ` Nicolas Gonzalez - Giuseppe Lavarello - Camilo Rivera`  
 
 # ## Introducción
-# En esta tarea, el objetivo principal es aplicar y comparar diferentes algoritmos de clustering a una imagen, ajustando KMeans, Clustering Jerárquico y Gaussian Mixtures utilizando la biblioteca scikit-learn. Estos métodos permiten segmentar una imagen en grupos de colores homogéneos, reduciendo su complejidad visual y preservando las características esenciales de la misma.
 # 
-# Para llevar a cabo este análisis, se comenzó importando las librerías necesarias y cargando una imagen de nuestra colección. Luego, se realizó el ajuste del algoritmo KMeans, determinando la cantidad óptima de clusters a través del método del codo (Scree Plot), y se reconstruyó la imagen utilizando una paleta de colores reducida. Posteriormente, se aplicaron el Clustering Jerárquico y las Mezclas de Gaussianas para comparar su capacidad de segmentación, así como el impacto en la representación visual y el nivel de detalle conservado.
-# 
+# <div style="text-align: justify"> La segmentación de imágenes es una técnica fundamental en el procesamiento de imágenes que busca dividir una imagen en regiones homogéneas. En este trabajo, exploramos la aplicación de tres algoritmos de clustering populares: K-means, jerárquico y mezclas gaussianas, para segmentar una imagen. Utilizando la biblioteca scikit-learn, comparamos la efectividad de cada algoritmo en la identificación de regiones de color similares y en la reducción de la complejidad visual de la imagen. A través del análisis de los resultados obtenidos, se busca determinar cuál de estos métodos es más adecuado para la tarea de segmentación en el contexto de la imagen seleccionada. </div>
 # 
 
 # Importar librerias
@@ -30,6 +28,8 @@ from sklearn.mixture import GaussianMixture
 from sklearn.cluster import AgglomerativeClustering
 from PIL import Image
 
+
+# ### Carga de Imagen
 
 # Cargar imagen
 image_path = './data/ciudad.jpeg'
@@ -56,10 +56,8 @@ total_pixels = width * height
 print(f"Total de píxeles: {total_pixels}")
 
 
-# La imagen ha sido cargada correctamente, y el conjunto de datos para los píxeles ha sido transformado a una matriz de dimensiones 
-# (320000,3), donde cada fila representa un píxel con sus valores RGB.
-# 
-# Ahora, se procede con el análisis de clustering utilizando KMeans, Clustering Jerárquico y Gaussian Mixtures, comenzando por el algoritmo KMeans para encontrar la paleta de colores más representativa mediante un gráfico scree-plot (método del codo) y determinar cuántos colores son óptimos
+# <div style="text-align: justify"> La imagen original se ha vectorizado, resultando en una matriz de características de 320,000 x 3, donde cada fila corresponde a un píxel expresado en el espacio de color RGB. A continuación, se empleó el algoritmo K-means para realizar una cuantización de color. Mediante el análisis del gráfico de codo, se identificó el valor de K (número de clusters) que optimiza la representación de la imagen con una paleta de colores reducida.
+# </div>
 
 # ### Determinación del número óptimo de colores
 
@@ -83,7 +81,8 @@ plt.grid(True)
 plt.show()
 
 
-# En el gráfico podemos observar que a partir del cluster número 7, la curva del Scree Plot comienza a mostrar una disminución menos pronunciada en la inercia, lo que indica que agregar más clusters no aporta una mejora significativa en la segmentación. Los últimos cuatro clusters se estabilizan alrededor de una inercia cercana a 0.4, lo que sugiere que 7 clusters es un punto óptimo en el que se equilibra la simplicidad del modelo con una segmentación adecuada de los datos.
+# **Desición**
+# <div style="text-align: justify">El gráfico de codo revela un punto de inflexión claro alrededor de los 7 clusters. A partir de este punto, la curva experimenta una disminución gradual en la inercia, lo que sugiere que agregar más clusters no conlleva una mejora sustancial en la calidad de la segmentación. La estabilización de la curva en los últimos cuatro clusters, alrededor de una inercia de 0.4, refuerza la idea de que 7 clusters representan un equilibrio óptimo entre la complejidad del modelo y la capacidad de capturar la variabilidad de los datos. </div>
 
 # #### KMeans y paleta de colores
 
@@ -129,6 +128,18 @@ plt.axis('off')
 plt.show()
 
 
+# Al aplicar K-means, se produjo una simplificación de la paleta de colores original. Cada píxel se asigna al color del centroide más cercano, (en 'direccionalidad' de sus colores no de su posición), lo que resulta en regiones homogéneas de color.
+# 
+# Lo que podemos observar en una imagen reconstruida:
+# 
+# * Pérdida de detalle: Debido a la reducción en el número de colores, se pierde detalle fino y texturas. Las transiciones entre colores son más abruptas y menos naturales. 
+# 
+# * Bloques de color: La imagen presenta bloques de color más uniformes, especialmente en áreas con gradientes suaves y detalles finos.  
+# 
+# * Efecto de posterización: La imagen puede adquirio un aspecto de póster, con grandes áreas de color sólido y contornos bien definidos.  
+# 
+# * Dependencia del número de clusters: El número de clusters (K) utilizado directamente influye en el nivel de detalle de la imagen reconstruida. Un K más bajo resultará en una imagen más simplificada, mientras que un K alto puede preservar más detalles.
+
 # #### Aplicación Clustering Jerárquico
 
 # Reducir el tamaño de la imagen
@@ -163,6 +174,16 @@ plt.title("Imagen restaurada (versión reducida) con Clustering Jerárquico")
 plt.show()
 
 
+# Al aplicar clustering jerárquico, se crea una jerarquía de agrupamientos, donde cada nivel representa una partición diferente de los datos. Cada píxel se asigna a un cluster basado en su similitud con otros píxeles, (nuevamente con su similitud medida en el espacio de los colores, no de su posición).
+# Lo que podemos observar en la imagen reconstruida:
+# 
+# * Segmentación basada en similitud: Los píxeles con características similares (color, textura) tienden a agruparse, lo que resulta en regiones homogéneas.
+# 
+# * Jerarquía de detalles: La estructura jerárquica permite explorar diferentes niveles de detalle en la segmentación. Niveles superiores del dendrograma pueden mostrar una segmentación más gruesa, mientras que niveles inferiores pueden revelar detalles más finos.
+# 
+# * Poder de computo: La exigencia de un mayor poder computacional (tiempo de procesamiento y memoria RAM) obligó a aplicar una transformación a la imagen antes de su análisis, lo cual dificulta una comparación directa de los resultados con los otros metodos.
+# 
+
 # #### Aplicación Gaussian Mixture
 
 # Ajustar el modelo Gaussian Mixture con el número óptimo de clusters
@@ -195,13 +216,15 @@ plt.show()
 # ## Conclusiones  
 # 
 # ### Algoritmo Kmeans
-# Al aplicar el algoritmo KMeans para la reconstrucción de la imagen, se ha dirigido una reducción estratégica a solo 7 clusters de colores. Este proceso no solo simplifica la paleta de colores, sino que también mantiene intactas las características visuales fundamentales, asegurando que los elementos principales de la imagen sigan siendo claros y reconocibles. Esta reducción selectiva ha permitido destacar formas y contornos sin perder la esencia de la imagen original. Además, la segmentación en colores homogéneos facilita considerablemente la identificación y diferenciación de los distintos elementos visuales dentro de la imagen.
+# <div style="text-align: justify">Mediante la aplicación del algoritmo K-Means y la reducción de la paleta de colores a 7 clusters, se consiguió una segmentación de la imagen en regiones homogéneas. Este proceso no solo simplifica la imagen, sino que también realza las formas y contornos, facilitando la identificación de los diferentes elementos visuales y manteniendo intactas las características fundamentales de la imagen original.</div>
+# 
 # 
 # ### Algoritmo Cluster jerarquicos
-# Al aplicar el algoritmo de Clustering Jerárquico, se observa una segmentación más detallada y marcada de la variedad de colores, en contraste con la segmentación más homogénea realizada por el algoritmo KMeans. El Clustering Jerárquico  detalla con precisión las transiciones sutiles y las variaciones dentro de la escena. Esto se manifiesta especialmente en la representación de áreas complejas donde se intercalan múltiples colores, como en los anuncios luminosos y las superficies reflejantes de los vehículos. Logra preservar los detalles generales de la imagen, aunque algunos elementos específicos, como el auto de policía situado en la esquina inferior izquierda, pierden definición.
+# <div style="text-align: justify"> El clustering jerárquico ha demostrado ser más efectivo en capturar la complejidad visual de la imagen, revelando una segmentación más detallada y rica en matices de color. Esta técnica ha destacado especialmente en áreas con transiciones suaves y variaciones sutiles, como los anuncios luminosos y las superficies reflectantes. Aunque ha preservado los detalles generales, algunos elementos específicos han perdido algo de definición.</div>
 # 
 # ### Algoritmo Gaussian Mixtures
-# El modelo Gaussian Mixtures proporciona transiciones de color más suaves, logrando una representación visual más natural y fluida. Este enfoque destaca al preservar detalles complejos, como los carteles luminosos y los reflejos, sin perder la coherencia de los elementos clave en la imagen. Además, mantiene la estructura visual global sin sacrificar claridad ni precisión, ofreciendo una segmentación que equilibra realismo y detalle en entornos visuales complejos.
+# <div style="text-align: justify"> En comparación con otros métodos de segmentación, GMM ha mostrado una mayor capacidad para capturar la complejidad de las imágenes, especialmente en áreas con transiciones de color suaves y detalles finos. La segmentación resultante es más natural y realista, sin perder la precisión en la delimitación de los objetos, ademas manteniendo la estructura visual global."</div>
 # 
 # ### Conclusión General
-# Podemos concluir que el modelo Gaussian Mixtures es el que mejor se adapta a la representación de la imagen, ya que logra transiciones de color mucho más suaves, lo que permite preservar los detalles complejos de un entorno urbano, como los carteles luminosos y los reflejos. Esta suavidad en la segmentación aporta un mayor realismo en comparación con los modelos KMeans y Clustering Jerárquico, que aunque efectivos en su propia manera, tienden a simplificar o perder ciertos detalles finos. Gaussian Mixtures, por lo tanto, ofrece una visualización más fluida y precisa, lo que lo convierte en la opción óptima para imágenes que requieren una representación detallada y realista.
+# <div style="text-align: justify">Los resultados obtenidos permiten concluir que el Modelo de Mezcla Gaussianas es la técnica más adecuada para la segmentación de esta imagen. La capacidad de GMM para modelar distribuciones de color multimodales ha permitido obtener una segmentación más precisa y detallada, especialmente en áreas con variaciones de color suaves y texturas complejas. En comparación, K-means y el clustering jerárquico han mostrado limitaciones en la representación de estos detalles. </div>
+# 
